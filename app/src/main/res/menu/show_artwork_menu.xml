@@ -3,10 +3,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/save_menu_item"
+        android:title="@string/save_menu_item"
+        android:icon="@drawable/ic_save_white_24dp"
+        app:showAsAction="ifRoom"
+        android:orderInCategory="1" />
+
+    <item
         android:id="@+id/more_info_menu_item"
         android:title="@string/more_info"
         app:showAsAction="never"
-        android:orderInCategory="100"
-        />
+        android:orderInCategory="100" />
 
 </menu>

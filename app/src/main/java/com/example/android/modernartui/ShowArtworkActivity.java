@@ -1,18 +1,35 @@
 package com.example.android.modernartui;
 
+import android.content.Intent;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.media.MediaScannerConnection;
+import android.net.Uri;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.SeekBar;
+import android.widget.Toast;
 
 import com.example.android.modernartui.colors.ColorSampler;
 import com.example.android.modernartui.colors.GoldenRatioColorSampler;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.util.Date;
 
 
 public class ShowArtworkActivity extends AppCompatActivity {
@@ -191,7 +208,84 @@ public class ShowArtworkActivity extends AppCompatActivity {
                 InfoDialogFragment infoDialogFragment = InfoDialogFragment.newInstance();
                 infoDialogFragment.show(getFragmentManager(), "More info");
                 break;
+
+            case R.id.save_menu_item:
+                saveCurrentArtwork();
         }
         return true;
     }
+
+    private void saveCurrentArtwork() {
+        Bitmap image = captureView(R.id.artwork_frame);
+        String imagePath = saveToGallery(image, generateFileName());
+        if (imagePath != null) {
+            String toastText = "Image successfully saved! Opening it...";
+            Toast.makeText(getApplicationContext(), toastText, Toast.LENGTH_SHORT)
+                    .show();
+
+            // Tell the media scanner to register the new image and open it as soon as the image
+            // has been scanned
+            String[] pathsToScan = new String[]{imagePath};
+            String[] mimeTypes = new String[]{"image/png"};
+            MediaScannerConnection.scanFile(this, pathsToScan, mimeTypes,
+                (path, uri) -> {
+                    Log.i("ExternalStorage", "Scanned " + path + ":");
+                    Log.i("ExternalStorage", "-> uri = " + uri);
+                    Intent showImageIntent = new Intent(Intent.ACTION_VIEW);
+                    showImageIntent.setDataAndType(uri, "image/png");
+                    startActivity(showImageIntent);
+                });
+        }
+    }
+
+    public Bitmap captureView(int viewId) {
+        //Find the view we are after
+        View view = findViewById(viewId);
+        //Create a Bitmap with the same dimensions
+        Bitmap image = Bitmap.createBitmap(view.getWidth(),
+                view.getHeight(),
+                Bitmap.Config.RGB_565);
+        //Draw the view inside the Bitmap
+        view.draw(new Canvas(image));
+        return image;
+    }
+
+    public String saveToGallery(Bitmap image, String filename) {
+        final String APP_NAME = getString(R.string.app_name);
+        String appImagesFolderPath =
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+                    + File.separator + APP_NAME + File.separator;
+
+        // Create the folder if it doesn't exist
+        File appImageFolder = new File(appImagesFolderPath);
+        if (!appImageFolder.exists()) {
+            appImageFolder.mkdir();
+        }
+
+        // Store the image into the folder
+        File imageFile = new File(appImagesFolderPath, filename);
+        boolean success = false;
+        try (FileOutputStream out = new FileOutputStream(imageFile)) {
+            success = image.compress(Bitmap.CompressFormat.PNG, 100, out);
+        }
+        catch (FileNotFoundException e) {
+            showErrorToast(R.string.impossible_to_save_error);
+        }
+        catch (IOException e) {
+            showErrorToast(R.string.impossible_to_save_error);
+        }
+
+        return (success) ? imageFile.getAbsolutePath() : null;
+    }
+
+    void showErrorToast(int stringId) {
+        String error = getString(stringId);
+        Toast.makeText(this, error, Toast.LENGTH_LONG);
+    }
+
+
+    String generateFileName() {
+        return "ModernArtwork_" + Long.toString(System.currentTimeMillis());
+    }
+
 }
