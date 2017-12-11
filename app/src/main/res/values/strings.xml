@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">ModernArtUI</string>
+    <string name="more_info">More info</string>
+    <string name="generate_artwork">New</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="assignment_info_text">
+        This app was made as an assignment for the first part of the coursera course
+        \"Programming Mobile Applications for Android Handheld Systems\".
+    </string>
+
+    <string name="inspired_by_info_text">
+        It was inspired by the works of artists such as Piet Mondrian and Ben Nicholson.
+    </string>
+
+    <string name="click_below_info_text">
+        Click below to learn more!
+    </string>
+
+    <string name="visit_MOMA_button_text">Visit MOMA</string>
+
+    <string name="not_now_button_text">Not now</string>
+    <string name="moma_link">https://www.moma.org/</string>
+    <string name="more_info_dialog_title">More info</string>
+    <string name="save_menu_item">Save as image</string>
+</resources>
