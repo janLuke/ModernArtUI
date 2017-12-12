@@ -1,7 +1,5 @@
 package com.example.android.modernartui;
 
-import android.view.View;
-
 import com.example.android.modernartui.colors.ColorSampler;
 import com.example.android.modernartui.utils.LayoutHelper;
 
@@ -18,7 +16,7 @@ public class ModernArtwork {
 
     private ArtworkNode root;
     private boolean forceWhiteNodes;
-    private Set<ArtworkNode> blockedWhiteNodes = new HashSet<>();
+    private Set<ArtworkNode> lockedWhiteNodes = new HashSet<>();
 
 
     public ModernArtwork(ArtworkNode root) {
@@ -34,7 +32,7 @@ public class ModernArtwork {
 
 
     public void recolor(ColorSampler sampler) {
-        blockedWhiteNodes.clear();
+        lockedWhiteNodes.clear();
         if (forceWhiteNodes) {
             Random random = new Random();
 
@@ -47,7 +45,7 @@ public class ModernArtwork {
                 int whiteNodeIndex = random.nextInt(level.size());
                 ArtworkNode whiteNode = level.get(whiteNodeIndex);
                 whiteNode.setColor(WHITE);
-                blockedWhiteNodes.add(whiteNode);
+                lockedWhiteNodes.add(whiteNode);
             }
         }
         else {
@@ -64,14 +62,14 @@ public class ModernArtwork {
 
     public void setSaturation(float saturation) {
         root.traverseBreadthFirst(node -> {
-            if (!blockedWhiteNodes.contains(node))
+            if (!lockedWhiteNodes.contains(node))
                 node.setSaturation(saturation);
         });
     }
 
     public void setBrightness(float brightness) {
         root.traverseBreadthFirst(node -> {
-            if (!blockedWhiteNodes.contains(node))
+            if (!lockedWhiteNodes.contains(node))
                 node.setBrightness(brightness);
         });
     }
