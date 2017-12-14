@@ -14,10 +14,10 @@ public class ModernArtworkGenerator {
 
     private static final String TAG = ModernArtworkGenerator.class.getSimpleName();
 
-    public static final int DEFAULT_MAX_DEPTH = 4;
+    public static final int DEFAULT_MAX_DEPTH = 5;
 
     public static final int DEFAULT_MIN_NUM_CHILDREN = 2;
-    public static final int DEFAULT_MAX_NUM_CHILDREN = 5;
+    public static final int DEFAULT_MAX_NUM_CHILDREN = 6;
 
     public static final int DEFAULT_MIN_LAYOUT_WEIGHT = 10;
     public static final int DEFAULT_MAX_LAYOUT_WEIGHT = 20;
@@ -63,8 +63,16 @@ public class ModernArtworkGenerator {
         float layoutProbability = (float) Math.sqrt((maxDepth - depth) / ((double) maxDepth));
 
         // Sample the number of children and the corresponding layout_weight's
-        int numChildren = minNumChildren +
-                random.nextInt(maxNumChildren - minNumChildren + 1);
+        // The maximum number of children is a function of depth (decrease with depth) and it's
+        // linearly interpolated from minNumChildren and maxNumChildren
+        int maxExtraChildren = maxNumChildren - minNumChildren;
+        float depthMultiplier = (DEFAULT_MAX_DEPTH - depth) / (float) DEFAULT_MAX_DEPTH;
+        int maxExtraChildrenForDepth = Math.round(maxExtraChildren * depthMultiplier);
+        Log.v(TAG, "Max number of extra children: " + maxExtraChildrenForDepth);
+
+        int numChildren = minNumChildren;
+        if (maxExtraChildrenForDepth > 0)
+            numChildren += random.nextInt(maxExtraChildrenForDepth); // nextInt(n) wants n>0
 
         for (int i=0; i<numChildren; i++) {
             ArtworkNode childNode = new ArtworkNode(context, 0, strokeWidthInPx);
