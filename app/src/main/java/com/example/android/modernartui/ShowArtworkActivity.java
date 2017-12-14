@@ -112,7 +112,7 @@ public class ShowArtworkActivity extends AppCompatActivity {
         saturation = DEFAULT_SATURATION;
         // Set the progress
         Resources res = getResources();
-        num_saturation_levels = res.getInteger(R.integer.num_saturation_levels);
+        num_saturation_levels = res.getInteger(R.integer.saturation_seekbar_max);
         int saturation_level = (int) scale(DEFAULT_SATURATION,
                                              min_saturation, max_saturation,
                                             0.f, num_saturation_levels);
