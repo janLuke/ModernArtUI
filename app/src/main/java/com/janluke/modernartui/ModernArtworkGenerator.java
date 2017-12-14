@@ -1,12 +1,12 @@
-package com.example.android.modernartui;
+package com.janluke.modernartui;
 
 import android.content.Context;
 import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
-import com.example.android.modernartui.colors.ColorSampler;
-import com.example.android.modernartui.utils.LayoutHelper;
+import com.janluke.modernartui.colors.ColorSampler;
+import com.janluke.modernartui.utils.LayoutHelper;
 
 import java.util.Random;
 

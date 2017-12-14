@@ -1,4 +1,4 @@
-package com.example.android.modernartui;
+package com.janluke.modernartui;
 
 import android.content.Intent;
 import android.content.res.Resources;
@@ -18,8 +18,9 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.Toast;
 
-import com.example.android.modernartui.colors.ColorSampler;
-import com.example.android.modernartui.colors.GoldenRatioColorSampler;
+import com.example.android.modernartui.R;
+import com.janluke.modernartui.colors.ColorSampler;
+import com.janluke.modernartui.colors.GoldenRatioColorSampler;
 
 import java.io.File;
 import java.io.FileNotFoundException;

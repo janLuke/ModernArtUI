@@ -1,4 +1,4 @@
-package com.example.android.modernartui.colors;
+package com.janluke.modernartui.colors;
 
 
 public class GoldenRatioColorSampler extends OffsetColorSampler {

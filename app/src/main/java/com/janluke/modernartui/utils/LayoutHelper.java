@@ -1,4 +1,4 @@
-package com.example.android.modernartui.utils;
+package com.janluke.modernartui.utils;
 
 import android.content.Context;
 import android.content.res.Resources;

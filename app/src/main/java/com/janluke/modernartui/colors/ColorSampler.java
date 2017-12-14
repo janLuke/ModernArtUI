@@ -1,4 +1,4 @@
-package com.example.android.modernartui.colors;
+package com.janluke.modernartui.colors;
 
 import android.graphics.Color;
 import android.util.Log;
