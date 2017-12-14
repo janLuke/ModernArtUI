@@ -5,9 +5,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.media.MediaScannerConnection;
-import android.net.Uri;
 import android.os.Environment;
-import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -27,9 +25,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.util.Date;
 
 
 public class ShowArtworkActivity extends AppCompatActivity {
@@ -37,10 +32,12 @@ public class ShowArtworkActivity extends AppCompatActivity {
     static final String TAG = ShowArtworkActivity.class.getSimpleName();
     static final float DEFAULT_SATURATION = 0.5f;
     static final float DEFAULT_BRIGHTNESS = 1f;
+    static final float HUE_OFFSET_ON_CLICK = .13f;
+
     static final int DEFAULT_DEPTH_LIMIT = 2;
-    private static final float HUE_OFFSET_ON_CLICK = .13f;
-    private static final int MIN_DEPTH_LIMIT = 1;
-    private final int DEFAULT_GRID_SIZE_IN_DP = 30;
+    static final int MIN_DEPTH_LIMIT = 2;
+
+    static final int DEFAULT_GRID_SIZE_IN_DP = 30;
 
     ModernArtworkGenerator artworkGenerator;
     ModernArtwork artwork;
@@ -143,7 +140,7 @@ public class ShowArtworkActivity extends AppCompatActivity {
 
     void initDepthLimitChange() {
         depthLimitBar.setMax(ModernArtworkGenerator.DEFAULT_MAX_DEPTH - MIN_DEPTH_LIMIT);
-        depthLimitBar.setProgress(DEFAULT_DEPTH_LIMIT);
+        depthLimitBar.setProgress(DEFAULT_DEPTH_LIMIT - MIN_DEPTH_LIMIT);
 
         // Saturation bar listener
         depthLimitBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
