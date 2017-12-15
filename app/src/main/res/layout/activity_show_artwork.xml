@@ -147,7 +147,7 @@
                 android:layout_weight="1"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
-                android:text="Create new"
+                android:text="@string/create_new_button"
                 android:drawableLeft="@drawable/ic_create_white_24dp"
                 android:theme="@style/myButtonTheme" />
 
@@ -157,7 +157,7 @@
                 android:layout_weight="1"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
-                android:text="Recolor"
+                android:text="@string/recolor_button"
                 android:drawableLeft="@drawable/ic_palette_white_24dp"
                 android:theme="@style/myButtonTheme"/>
         </LinearLayout>

@@ -30,7 +30,7 @@ public class InfoDialogFragment extends DialogFragment {
         LayoutInflater inflater = getActivity().getLayoutInflater();
 
         builder.setView(inflater.inflate(R.layout.fragment_info_dialog, null))
-                .setTitle(R.string.more_info_dialog_title)
+                .setTitle(R.string.more_info)
                 .setPositiveButton(R.string.visit_MOMA_button_text, (dialogInterface, i) -> {
                     Intent visitMomaIntent = new Intent(Intent.ACTION_VIEW);
                     Uri momaUri = Uri.parse(getString(R.string.moma_link));
