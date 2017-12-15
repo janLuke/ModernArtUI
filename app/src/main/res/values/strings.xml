@@ -6,10 +6,12 @@
     <string name="recolor_button">Recolor</string>
 
     <!-- Menu items -->
-    <string name="save_menu_item">Save as image</string>
-    <string name="more_info">More info</string>
+    <string name="save_action">Save as image</string>
+    <string name="info_action">More info</string>
 
     <!-- More info dialog -->
+    <string name="info_dialog_title">More info</string>
+
     <string name="assignment_info_text">
         This app was made as an assignment for the first part of the coursera course
         \"Programming Mobile Applications for Android Handheld Systems\".
@@ -48,6 +50,4 @@
 
     <!-- Generic-use resources -->
     <string name="close_button_text">Close</string>
-
-    <!-- Others -->
 </resources>

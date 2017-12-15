@@ -4,15 +4,16 @@
 
     <item
         android:id="@+id/save_menu_item"
-        android:title="@string/save_menu_item"
+        android:title="@string/save_action"
         android:icon="@drawable/ic_save_white_24dp"
         app:showAsAction="ifRoom"
         android:orderInCategory="1" />
 
     <item
         android:id="@+id/more_info_menu_item"
-        android:title="@string/more_info"
-        app:showAsAction="never"
+        android:title="@string/info_action"
+        android:icon="@drawable/ic_info_white_24dp"
+        app:showAsAction="ifRoom"
         android:orderInCategory="100" />
 
 </menu>
