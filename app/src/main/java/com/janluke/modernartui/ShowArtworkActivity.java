@@ -46,6 +46,7 @@ public class ShowArtworkActivity extends AppCompatActivity {
 
     static final int DEFAULT_GRID_SIZE_IN_DP = 30;
     private static final int PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE = 0;
+    private static final Bitmap.CompressFormat IMAGE_FILE_FORMAT = Bitmap.CompressFormat.PNG;
 
     ModernArtworkGenerator artworkGenerator;
     ModernArtwork artwork;
@@ -313,7 +314,7 @@ public class ShowArtworkActivity extends AppCompatActivity {
         File imageFile = new File(appImagesFolderPath, filename);
         boolean success = false;
         try (FileOutputStream out = new FileOutputStream(imageFile)) {
-            success = image.compress(Bitmap.CompressFormat.PNG, 100, out);
+            success = image.compress(IMAGE_FILE_FORMAT, 100, out);
         }
         catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -342,7 +343,9 @@ public class ShowArtworkActivity extends AppCompatActivity {
     }
 
     String generateFileName() {
-        return "ModernArtwork_" + Long.toString(System.currentTimeMillis());
+        long timeMillis = System.currentTimeMillis();
+        String fileFormat = IMAGE_FILE_FORMAT.toString().toLowerCase();
+        return String.format("artwork_%d.%s", timeMillis, fileFormat);
     }
 
 
