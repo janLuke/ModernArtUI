@@ -32,7 +32,7 @@
 
     <!-- Permission rationales and messages -->
     <string name="external_storage_permission_rationale">Permission to write to external storage is needed to save the image.</string>
-    <string name="external_storage_permission_denied">Permission denied.</string>
+    <string name="external_storage_permission_denied">Unable to perform the action because permission to write was denied.</string>
 
     <!-- Artwork parameters -->
     <string name="saturation">Saturation</string>

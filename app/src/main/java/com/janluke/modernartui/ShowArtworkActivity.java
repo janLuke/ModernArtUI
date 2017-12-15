@@ -216,12 +216,12 @@ public class ShowArtworkActivity extends AppCompatActivity {
                 break;
 
             case R.id.save_menu_item:
-                onSaveMenuItemSelected();
+                onSaveActionSelected();
         }
         return true;
     }
 
-    private void onSaveMenuItemSelected() {
+    private void onSaveActionSelected() {
         Log.i(TAG, "Checking permission for WRITE_EXTERNAL_STORAGE");
 
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -276,10 +276,10 @@ public class ShowArtworkActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE) {
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                onSaveMenuItemSelected();
+                onSaveActionSelected();
             } else {
                 // Permission request was denied.
-                showToast(R.string.external_storage_permission_denied, Toast.LENGTH_SHORT);
+                showToast(R.string.external_storage_permission_denied, Toast.LENGTH_LONG);
             }
         }
     }
