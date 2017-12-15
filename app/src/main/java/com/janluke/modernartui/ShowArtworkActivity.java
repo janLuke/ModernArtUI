@@ -1,11 +1,17 @@
 package com.janluke.modernartui;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.media.MediaScannerConnection;
 import android.os.Environment;
+import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -39,6 +45,7 @@ public class ShowArtworkActivity extends AppCompatActivity {
     static final int MIN_DEPTH_LIMIT = 2;
 
     static final int DEFAULT_GRID_SIZE_IN_DP = 30;
+    private static final int PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE = 0;
 
     ModernArtworkGenerator artworkGenerator;
     ModernArtwork artwork;
@@ -201,6 +208,7 @@ public class ShowArtworkActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        Log.i(TAG, "Selected menu item: " + item.toString());
         switch(item.getItemId()){
             case R.id.more_info_menu_item:
                 InfoDialogFragment infoDialogFragment = InfoDialogFragment.newInstance();
@@ -208,32 +216,117 @@ public class ShowArtworkActivity extends AppCompatActivity {
                 break;
 
             case R.id.save_menu_item:
-                saveCurrentArtwork();
+                onSaveMenuItemSelected();
         }
         return true;
     }
 
-    private void saveCurrentArtwork() {
-        Bitmap image = captureView(R.id.artwork_frame);
-        String imagePath = saveToGallery(image, generateFileName());
-        if (imagePath != null) {
-            String toastText = "Image successfully saved! Opening it...";
-            Toast.makeText(getApplicationContext(), toastText, Toast.LENGTH_SHORT)
-                    .show();
+    private void onSaveMenuItemSelected() {
+        Log.i(TAG, "Checking permission for WRITE_EXTERNAL_STORAGE");
 
-            // Tell the media scanner to register the new image and open it as soon as the image
-            // has been scanned
-            String[] pathsToScan = new String[]{imagePath};
-            String[] mimeTypes = new String[]{"image/png"};
-            MediaScannerConnection.scanFile(this, pathsToScan, mimeTypes,
-                (path, uri) -> {
-                    Log.i("ExternalStorage", "Scanned " + path + ":");
-                    Log.i("ExternalStorage", "-> uri = " + uri);
-                    Intent showImageIntent = new Intent(Intent.ACTION_VIEW);
-                    showImageIntent.setDataAndType(uri, "image/png");
-                    startActivity(showImageIntent);
-                });
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Permission is missing and must be requested.
+            requestWriteExternalStoragePermission();
+            return;
         }
+        else {
+            // Permission granted
+            Bitmap image = captureView(R.id.artwork_frame);
+            String imagePath = saveImageToGallery(image, generateFileName());
+            if (imagePath != null) {
+                showToast(R.string.image_saved_message, Toast.LENGTH_LONG);
+                scanAndOpenImageFile(imagePath);
+            }
+        }
+    }
+
+    private void scanAndOpenImageFile(String imagePath) {
+        // Tell the media scanner to register the new image and open it as soon as the image
+        // has been scanned
+        String[] pathsToScan = new String[]{imagePath};
+        String[] mimeTypes = new String[]{"image/png"};
+        MediaScannerConnection.scanFile(this, pathsToScan, mimeTypes,
+            (path, uri) -> {
+                Log.i("ExternalStorage", "Scanned " + path + ":");
+                Log.i("ExternalStorage", "-> uri = " + uri);
+                Intent showImageIntent = new Intent(Intent.ACTION_VIEW);
+                showImageIntent.setDataAndType(uri, "image/png");
+                if (showImageIntent.resolveActivity(getPackageManager()) != null) {
+                    startActivity(showImageIntent);
+                } else {
+                    showToast(R.string.no_app_for_opening_image, Toast.LENGTH_LONG);
+                }
+            });
+    }
+
+    private void requestWriteExternalStoragePermission() {
+        String writeExternalPermission = Manifest.permission.WRITE_EXTERNAL_STORAGE;
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, writeExternalPermission)) {
+            // Provide an additional rationale to the user
+            showToast(R.string.external_storage_permission_rationale, Toast.LENGTH_LONG);
+        }
+
+        ActivityCompat.requestPermissions(this, new String[]{writeExternalPermission},
+                PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE);
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                onSaveMenuItemSelected();
+            } else {
+                // Permission request was denied.
+                showToast(R.string.external_storage_permission_denied, Toast.LENGTH_SHORT);
+            }
+        }
+    }
+
+    public String saveImageToGallery(Bitmap image, String filename) {
+        final String APP_NAME = getString(R.string.app_name);
+        String appImagesFolderPath =
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+                    + File.separator + APP_NAME + File.separator;
+
+        // Create the folder if it doesn't exist
+        File appImageFolder = new File(appImagesFolderPath);
+        if (!appImageFolder.exists()) {
+            Log.i(TAG, "Image folder (" + appImagesFolderPath + ") doesn't exist. Creating it...");
+            boolean created = false;
+            try {
+                created = appImageFolder.mkdirs();
+            }
+            catch(SecurityException e) {
+                created = false;
+            }
+            finally {
+                if (!created) {
+                    showErrorDialog(R.string.unable_to_create_gallery_folder_error);
+                    return null;
+                }
+            }
+        }
+
+        // Store the image into the folder
+        File imageFile = new File(appImagesFolderPath, filename);
+        boolean success = false;
+        try (FileOutputStream out = new FileOutputStream(imageFile)) {
+            success = image.compress(Bitmap.CompressFormat.PNG, 100, out);
+        }
+        catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        if (!success) {
+            showErrorDialog(R.string.impossible_to_save_error);
+            return null;
+        }
+        return imageFile.getAbsolutePath();
     }
 
     public Bitmap captureView(int viewId) {
@@ -248,42 +341,34 @@ public class ShowArtworkActivity extends AppCompatActivity {
         return image;
     }
 
-    public String saveToGallery(Bitmap image, String filename) {
-        final String APP_NAME = getString(R.string.app_name);
-        String appImagesFolderPath =
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-                    + File.separator + APP_NAME + File.separator;
-
-        // Create the folder if it doesn't exist
-        File appImageFolder = new File(appImagesFolderPath);
-        if (!appImageFolder.exists()) {
-            appImageFolder.mkdir();
-        }
-
-        // Store the image into the folder
-        File imageFile = new File(appImagesFolderPath, filename);
-        boolean success = false;
-        try (FileOutputStream out = new FileOutputStream(imageFile)) {
-            success = image.compress(Bitmap.CompressFormat.PNG, 100, out);
-        }
-        catch (FileNotFoundException e) {
-            showErrorToast(R.string.impossible_to_save_error);
-        }
-        catch (IOException e) {
-            showErrorToast(R.string.impossible_to_save_error);
-        }
-
-        return (success) ? imageFile.getAbsolutePath() : null;
-    }
-
-    void showErrorToast(int stringId) {
-        String error = getString(stringId);
-        Toast.makeText(this, error, Toast.LENGTH_LONG);
-    }
-
-
     String generateFileName() {
         return "ModernArtwork_" + Long.toString(System.currentTimeMillis());
+    }
+
+
+    public void showErrorDialog(@StringRes int messageId) {
+        String title = getString(R.string.error_dialog_title);
+        showDialog(title, getString(messageId));
+    }
+
+    public void showDialog(@StringRes int titleId, @StringRes int messageId) {
+        String title = getString(titleId);
+        String message = getString(messageId);
+        showDialog(title, message);
+    }
+
+    public void showDialog(final String title, final String message) {
+        new AlertDialog.Builder(this)
+                .setMessage(message)
+                .setTitle(title)
+                .setNeutralButton(R.string.close_button_text, null)
+                .create()
+                .show();
+    }
+
+    public void showToast(@StringRes int textId, int duration) {
+        Toast.makeText(this, getString(textId), duration)
+             .show();
     }
 
 }

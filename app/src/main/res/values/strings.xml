@@ -28,4 +28,11 @@
     <string name="saturation">Saturation</string>
     <string name="depth_limit">Depth limit</string>
     <string name="stroke_width">Stroke width</string>
+    <string name="close_button_text">Close</string>
+    <string name="error_dialog_title">Error</string>
+    <string name="unable_to_create_gallery_folder_error">Unable to create a gallery folder where to save the image.</string>
+    <string name="external_storage_permission_rationale">The permission to write to external storage is needed to save the artwork as image.</string>
+    <string name="no_app_for_opening_image">Unable to open the image just saved. No installed app was found for carrying out the action.</string>
+    <string name="image_saved_message">Image successfully saved! Opening it...</string>
+    <string name="external_storage_permission_denied">Permission denied.</string>
 </resources>
