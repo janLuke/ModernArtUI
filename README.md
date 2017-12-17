@@ -15,7 +15,7 @@ You can also randomly recolor the artwork globally or shift the hue of an indivi
 
 
 ## Video
-A video of an old version (the submitted one) can be find at the following link: https://www.youtube.com/watch?v=KBaijyBY-Mg.
+A video of the app can be find at the following link: https://www.youtube.com/watch?v=bqhVjzkbDKQ.
 
 
 ## Original requirements of the assignment
