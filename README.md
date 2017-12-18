@@ -1,7 +1,7 @@
 # What is it?
-This is the first app I made from scratch. I made it as the final assignment of the Coursera's course "Programming Mobile Application for Android Handheld Systems: Part 1". The actual assignment was much more simple. I tried to make it more interesting :)
+This is the first app I made from scratch. I made it as the final assignment of the Coursera's course "Programming Mobile Application for Android Handheld Systems: Part 1". The original assignment was simpler, I preferred to experiment a little bit more with Android :)
 
-It's basically a generator of "artworks" that you can save as png images. Here's a screenshot
+It's basically a generator of "artworks" which you can save as png images. Here's a screenshot
 
 ![Screenshot](screenshot_300.jpg)
 
