@@ -59,8 +59,8 @@ public class ModernArtworkGenerator {
         Context context = parent.getContext();
         int childrenOrientation = LayoutHelper.getPerpendicularOrientation(parent.getOrientation());
 
-        // Probability for a child to be a LinearLayout rather than a View (a leaf in the tree)
-        float layoutProbability = (float) Math.sqrt((maxDepth - depth) / ((double) maxDepth));
+        // Probability for a child to be a leaf in the tree
+        float probabilityChildIsLeaf = 1f - (float) Math.sqrt((maxDepth - depth) / (float) maxDepth);
 
         // Sample the number of children and the corresponding layout_weight's
         // The maximum number of children is a function of depth (decrease with depth) and it's
@@ -81,7 +81,7 @@ public class ModernArtworkGenerator {
             int weight = minLayoutWeight + random.nextInt(maxLayoutWeight - minLayoutWeight);
             parent.addChild(childNode, weight);
 
-            boolean childIsLeaf = (random.nextFloat() > layoutProbability);
+            boolean childIsLeaf = (random.nextFloat() < probabilityChildIsLeaf);
             if (!childIsLeaf)
                 generateArtwork(childNode, depth + 1);        // recursive call
             else
