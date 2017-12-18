@@ -60,7 +60,7 @@ public class ModernArtworkGenerator {
         int childrenOrientation = LayoutHelper.getPerpendicularOrientation(parent.getOrientation());
 
         // Probability for a child to be a leaf in the tree
-        float probabilityChildIsLeaf = 1f - (float) Math.sqrt((maxDepth - depth) / (float) maxDepth);
+        float probabilityChildIsLeaf = 1f - (float) Math.sqrt((maxDepth - depth) / (double) maxDepth);
 
         // Sample the number of children and the corresponding layout_weight's
         // The maximum number of children is a function of depth (decrease with depth) and it's
