@@ -3,7 +3,7 @@ This is the first app I made from scratch. I made it as the final assignment of 
 
 It's basically a generator of "artworks" which you can save as png images. Here's a screenshot
 
-![Screenshot](screenshot_300.jpg)
+![Screenshot](images/screenshot_300.jpg)
 
 It allows you to set:
 
