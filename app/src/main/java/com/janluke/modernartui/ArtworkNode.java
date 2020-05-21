@@ -14,15 +14,21 @@ import java.util.List;
 import java.util.Queue;
 
 
+/**
+ * A piece of a ModernArtwork that can behave either as a single tile or a column/row of tiles.
+ * Basically, it's a tree node with a double nature: at any moment it can behave
+ * - as a leaf, i.e. hiding its children
+ * - or as an internal node, i.e. showing its children.
+ */
 public class ArtworkNode {
-    // For convenience and readability
+    // For shortness and readability
     private static final int MATCH_PARENT = ViewGroup.LayoutParams.MATCH_PARENT;
 
     private List<ArtworkNode> children = new ArrayList<>();
 
-    View view;
-    LinearLayout layout;
     ViewSwitcher viewSwitcher;
+    View leafView;              // this is shown when the node works in "leaf mode"
+    LinearLayout childrenView;   // children view are ViewSwitchers associated with of children ArtworkNodes
 
     private float[] viewColorHSV = new float[3];
     private int marginBetweenChildren;
@@ -31,16 +37,15 @@ public class ArtworkNode {
 
     private OnClickListener listener;
 
-
     public ArtworkNode(Context context, int color, int marginBetweenChildren) {
         // Create sub-views
-        view = new View(context);
-        layout = new LinearLayout(context);
+        leafView = new View(context);
+        childrenView = new LinearLayout(context);
 
         // Switcher
         viewSwitcher = new ViewSwitcher(context);
-        viewSwitcher.addView(layout, MATCH_PARENT, MATCH_PARENT);
-        viewSwitcher.addView(view, MATCH_PARENT, MATCH_PARENT);
+        viewSwitcher.addView(childrenView, MATCH_PARENT, MATCH_PARENT);
+        viewSwitcher.addView(leafView, MATCH_PARENT, MATCH_PARENT);
 
         setColor(color);
         this.marginBetweenChildren = marginBetweenChildren;
@@ -54,11 +59,10 @@ public class ArtworkNode {
         LinearLayout.LayoutParams params;
         int marginLeft = 0;
         int marginTop = 0;
-        if (layout.getOrientation() == LinearLayout.HORIZONTAL) {
+        if (childrenView.getOrientation() == LinearLayout.HORIZONTAL) {
             params = new LinearLayout.LayoutParams(0, MATCH_PARENT, weight);
             marginLeft = marginBetweenChildren;
-        }
-        else {
+        } else {
             params = new LinearLayout.LayoutParams(MATCH_PARENT, 0, weight);
             marginTop = marginBetweenChildren;
         }
@@ -67,7 +71,7 @@ public class ArtworkNode {
             params.setMargins(marginLeft, marginTop, 0, 0);
 
         childView.setLayoutParams(params);
-        layout.addView(childView);
+        childrenView.addView(childView);
     }
 
     public Iterable<ArtworkNode> children() {
@@ -95,14 +99,13 @@ public class ArtworkNode {
         hsv[2] = this.viewColorHSV[2];
     }
 
-    public float getHue() { return viewColorHSV[0]; }
-    public float getSaturation() { return viewColorHSV[1]; }
-    public float getBrightness() { return viewColorHSV[2]; }
-
+    public float getHue() {
+        return viewColorHSV[0];
+    }
 
     public void setColor(int color) {
         Color.colorToHSV(color, viewColorHSV);
-        view.setBackgroundColor(color);
+        leafView.setBackgroundColor(color);
     }
 
     public void setColorHSV(float[] hsv) {
@@ -113,7 +116,7 @@ public class ArtworkNode {
         viewColorHSV[0] = h;
         viewColorHSV[1] = s;
         viewColorHSV[2] = v;
-        view.setBackgroundColor(Color.HSVToColor(viewColorHSV));
+        leafView.setBackgroundColor(Color.HSVToColor(viewColorHSV));
     }
 
     public View getView() {
@@ -126,17 +129,17 @@ public class ArtworkNode {
 
     public void setHue(float hue) {
         viewColorHSV[0] = hue;
-        view.setBackgroundColor(Color.HSVToColor(viewColorHSV));
+        leafView.setBackgroundColor(Color.HSVToColor(viewColorHSV));
     }
 
     public void setSaturation(float saturation) {
         viewColorHSV[1] = saturation;
-        view.setBackgroundColor(Color.HSVToColor(viewColorHSV));
+        leafView.setBackgroundColor(Color.HSVToColor(viewColorHSV));
     }
 
     public void setBrightness(float brightness) {
         viewColorHSV[2] = brightness;
-        view.setBackgroundColor(Color.HSVToColor(viewColorHSV));
+        leafView.setBackgroundColor(Color.HSVToColor(viewColorHSV));
     }
 
     public void setMargins(int left, int top, int right, int bottom) {
@@ -146,37 +149,24 @@ public class ArtworkNode {
         viewSwitcher.setLayoutParams(params);
     }
 
-    public void setMargin(int margin) {
-        setMargins(margin, margin, margin, margin);
-    }
-
     public Context getContext() {
         return viewSwitcher.getContext();
     }
 
     public int getOrientation() {
-        return layout.getOrientation();
+        return childrenView.getOrientation();
     }
-
-//    public void setOrientation(int orientation) {
-//        int oldOrientation = layout.getOrientation();
-//        layout.setOrientation(orientation);
-//        if (oldOrientation!= orientation) {
-//            // TODO update children layout parameters and propagate the change of orientation
-//        }
-//    }
-
 
     public void setMarginBetweenChildren(int margin) {
         int numChildren = children.size();
         int left = 0;
         int top = 0;
-        if (layout.getOrientation() == LinearLayout.HORIZONTAL)
+        if (childrenView.getOrientation() == LinearLayout.HORIZONTAL)
             left = margin;
         else
             top = margin;
 
-        for (int i=1; i<numChildren; i++) {
+        for (int i = 1; i < numChildren; i++) {
             children.get(i).setMargins(left, top, 0, 0);
         }
     }
@@ -185,20 +175,20 @@ public class ArtworkNode {
         return children.size() == 0;
     }
 
-
     public interface OnClickListener {
         void onClick(ArtworkNode node);
     }
 
     public void setOnClickListener(OnClickListener listener) {
         this.listener = listener;
-        view.setOnClickListener(view -> listener.onClick(this));
+        leafView.setOnClickListener(view -> listener.onClick(this));
     }
 
 
     interface ArtworkNodeConsumer {
         void consume(ArtworkNode node);
     }
+
 
     public void traverseBreadthFirst(ArtworkNodeConsumer consumer) {
         traverseBreadthFirst(this, consumer);
@@ -216,12 +206,13 @@ public class ArtworkNode {
         }
     }
 
-
     public LevelsIterator levelsIterator() {
         return new LevelsIterator(this);
     }
 
-
+    /**
+     *  Visit artwork nodes level by level. Each level contains all nodes at the same depth.
+     */
     public static class LevelsIterator implements Iterator<List<ArtworkNode>> {
 
         List<ArtworkNode> nextLevel;
@@ -241,7 +232,7 @@ public class ArtworkNode {
             List<ArtworkNode> currentLevel = nextLevel;
 
             nextLevel = new ArrayList<>();
-            for (ArtworkNode node : currentLevel){
+            for (ArtworkNode node : currentLevel) {
                 nextLevel.addAll(node.children);
             }
 

@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -35,6 +36,8 @@ import java.io.IOException;
 
 
 public class ShowArtworkActivity extends AppCompatActivity {
+
+    private final static int MATCH_PARENT = ViewGroup.LayoutParams.MATCH_PARENT;
 
     static final String TAG = ShowArtworkActivity.class.getSimpleName();
     static final float DEFAULT_SATURATION = 0.5f;
@@ -98,13 +101,16 @@ public class ShowArtworkActivity extends AppCompatActivity {
 
         // Generate the artwork
         artworkGenerator = new ModernArtworkGenerator();
+        artworkGenerator.setColorSampler(colorSampler);
         artworkGenerator.setStrokeWidthInDp(DEFAULT_GRID_SIZE_IN_DP);
         createNewArtwork();
     }
 
     void createNewArtwork() {
         Log.i(TAG, "Create new");
-        artwork = artworkGenerator.generateArtwork(artworkFrame, colorSampler);
+        artworkFrame.removeAllViews();
+        artwork = artworkGenerator.generateArtwork(artworkFrame.getContext());
+        artworkFrame.addView(artwork.getView(), MATCH_PARENT, MATCH_PARENT);
         onDepthLimitChange(depthLimitBar.getProgress());
         artwork.setOnNodesClickListener(node -> {
             float newHue = node.getHue() / 360f + HUE_OFFSET_ON_CLICK;

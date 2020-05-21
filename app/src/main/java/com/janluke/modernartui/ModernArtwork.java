@@ -1,7 +1,9 @@
 package com.janluke.modernartui;
 
+import android.graphics.Color;
+import android.view.View;
+
 import com.janluke.modernartui.colors.ColorSampler;
-import com.janluke.modernartui.utils.LayoutHelper;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -11,29 +13,35 @@ import java.util.Set;
 
 
 public class ModernArtwork {
-    private static final String TAG = ModernArtwork.class.getSimpleName();
-    private static final int WHITE = 0xFFFFFFFF;
-
     private ArtworkNode root;
     private boolean forceWhiteNodes;
     private Set<ArtworkNode> lockedWhiteNodes = new HashSet<>();
 
-
-    public ModernArtwork(ArtworkNode root) {
-        this(root, false);
-    }
-
+    /**
+     * @param root The root ArtworkNode
+     * @param forceWhiteNodes Require at least a node (a tile) to be white and unmodifiable
+     */
     public ModernArtwork(ArtworkNode root, boolean forceWhiteNodes) {
         this.root = root;
         this.forceWhiteNodes = forceWhiteNodes;
     }
 
-    public ArtworkNode getRoot() { return root; }
+    public ModernArtwork(ArtworkNode root) {
+        this(root, false);
+    }
 
+    public ArtworkNode getRoot() {
+        return root;
+    }
+
+    public View getView() {
+        return root.getView();
+    }
 
     public void recolor(ColorSampler sampler) {
         lockedWhiteNodes.clear();
         if (forceWhiteNodes) {
+            // Ensure there's at least one white node at each level of the tree
             Random random = new Random();
 
             ArtworkNode.LevelsIterator levelsIterator = root.levelsIterator();
@@ -44,7 +52,7 @@ public class ModernArtwork {
                 }
                 int whiteNodeIndex = random.nextInt(level.size());
                 ArtworkNode whiteNode = level.get(whiteNodeIndex);
-                whiteNode.setColor(WHITE);
+                whiteNode.setColor(Color.WHITE);
                 lockedWhiteNodes.add(whiteNode);
             }
         }
@@ -55,7 +63,7 @@ public class ModernArtwork {
     }
 
     public void setStrokeWidth(float strokeWidthInDp) {
-        int strokeWidthInPx = LayoutHelper.dpToPx(root.getContext(), strokeWidthInDp);
+        int strokeWidthInPx = Util.dpToPx(root.getContext(), strokeWidthInDp);
         root.traverseBreadthFirst(node ->
                 node.setMarginBetweenChildren(strokeWidthInPx));
     }
@@ -75,11 +83,11 @@ public class ModernArtwork {
     }
 
     public void setMinLayoutSize(float sizeInDp) {
-        int sizeInPx = LayoutHelper.dpToPx(root.getContext(), sizeInDp);
+        int sizeInPx = Util.dpToPx(root.getContext(), sizeInDp);
         root.traverseBreadthFirst(node -> {
             if (!node.isLeaf())
-                node.showChildren(node.view.getWidth() >= sizeInPx
-                                    && node.view.getHeight() >= sizeInPx);
+                node.showChildren(node.leafView.getWidth() >= sizeInPx
+                                    && node.leafView.getHeight() >= sizeInPx);
         });
     }
 
@@ -98,7 +106,6 @@ public class ModernArtwork {
                 setDepthLimit(iterator.next(), depthLimit);
         }
     }
-
 
     public void setOnNodesClickListener(ArtworkNode.OnClickListener listener) {
         root.traverseBreadthFirst(node ->
