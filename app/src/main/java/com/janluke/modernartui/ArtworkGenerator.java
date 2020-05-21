@@ -9,7 +9,7 @@ import com.janluke.modernartui.colors.ColorSampler;
 import java.util.Random;
 
 
-public class ModernArtworkGenerator {
+public class ArtworkGenerator {
 
     public static final int DEFAULT_MAX_DEPTH = 5;
 
@@ -28,7 +28,7 @@ public class ModernArtworkGenerator {
     private Random random = new Random();
 
 
-    public ModernArtwork generateArtwork(Context context) {
+    public Artwork generateArtwork(Context context) {
 
         strokeWidthInPx = Util.dpToPx(context, strokeWidthInDp);
 
@@ -36,7 +36,7 @@ public class ModernArtworkGenerator {
         root.childrenView.setOrientation(randOrientation());
         growArtworkTreeRecursively(root, 0);
 
-        ModernArtwork artwork = new ModernArtwork(root, forceWhiteNodes);
+        Artwork artwork = new Artwork(root, forceWhiteNodes);
 
         if (colorSampler != null)
             artwork.recolor(colorSampler);

@@ -51,8 +51,8 @@ public class ShowArtworkActivity extends AppCompatActivity {
     private static final int PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE = 0;
     private static final Bitmap.CompressFormat IMAGE_FILE_FORMAT = Bitmap.CompressFormat.PNG;
 
-    ModernArtworkGenerator artworkGenerator;
-    ModernArtwork artwork;
+    ArtworkGenerator artworkGenerator;
+    Artwork artwork;
     ColorSampler colorSampler;
 
     FrameLayout artworkFrame;
@@ -100,7 +100,7 @@ public class ShowArtworkActivity extends AppCompatActivity {
                             .build();
 
         // Generate the artwork
-        artworkGenerator = new ModernArtworkGenerator();
+        artworkGenerator = new ArtworkGenerator();
         artworkGenerator.setColorSampler(colorSampler);
         artworkGenerator.setStrokeWidthInDp(DEFAULT_GRID_SIZE_IN_DP);
         createNewArtwork();
@@ -154,7 +154,7 @@ public class ShowArtworkActivity extends AppCompatActivity {
 
 
     void initDepthLimitChange() {
-        depthLimitBar.setMax(ModernArtworkGenerator.DEFAULT_MAX_DEPTH - MIN_DEPTH_LIMIT);
+        depthLimitBar.setMax(ArtworkGenerator.DEFAULT_MAX_DEPTH - MIN_DEPTH_LIMIT);
         depthLimitBar.setProgress(DEFAULT_DEPTH_LIMIT - MIN_DEPTH_LIMIT);
 
         // Saturation bar listener

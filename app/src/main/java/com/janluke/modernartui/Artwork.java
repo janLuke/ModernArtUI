@@ -12,7 +12,7 @@ import java.util.Random;
 import java.util.Set;
 
 
-public class ModernArtwork {
+public class Artwork {
     private ArtworkNode root;
     private boolean forceWhiteNodes;
     private Set<ArtworkNode> lockedWhiteNodes = new HashSet<>();
@@ -21,12 +21,12 @@ public class ModernArtwork {
      * @param root The root ArtworkNode
      * @param forceWhiteNodes Require at least a node (a tile) to be white and unmodifiable
      */
-    public ModernArtwork(ArtworkNode root, boolean forceWhiteNodes) {
+    public Artwork(ArtworkNode root, boolean forceWhiteNodes) {
         this.root = root;
         this.forceWhiteNodes = forceWhiteNodes;
     }
 
-    public ModernArtwork(ArtworkNode root) {
+    public Artwork(ArtworkNode root) {
         this(root, false);
     }
 

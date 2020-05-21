@@ -15,7 +15,7 @@ import java.util.Queue;
 
 
 /**
- * A piece of a ModernArtwork that can behave either as a single tile or a column/row of tiles.
+ * A piece of an Artwork that can behave either as a single tile or a column/row of tiles.
  * Basically, it's a tree node with a double nature: at any moment it can behave
  * - as a leaf, i.e. hiding its children
  * - or as an internal node, i.e. showing its children.
