@@ -1,27 +1,25 @@
 # What is it?
 
-This is the first Android app I made from scratch. I made it as the final assignment of the
-Coursera's course "Programming Mobile Application for Android Handheld Systems: Part 1", but it's a
-more complex version of what was assigned to do: the original assignment was to build a
-fixed layout showing an "artwork"; I made a generator of "artworks" that you can save as png.
+[Watch the video](https://www.youtube.com/watch?v=bqhVjzkbDKQ)
 
-All the constraints of the original assignment were respected: each artwork has at least a white
-tile whose color cannot be changed.
+This is the first Android app I made from scratch. I wrote it for the final assignment of the
+Coursera's course "Programming Mobile Application for Android Handheld Systems: Part 1", but it's a
+more complex version of the original assignment, which was about composing a fixed layout showing an 
+fixed "artwork". Instead, I made a generator of "artworks" that you can save as png images.
+
+Note that all the constraints of the original assignment were satisfied: 
+- the app has at least a slider for changing the colors of the tiles;
+- the artwork has at least a white tile that remains white even when the slider position is changed.
 
 Here's a screenshot:
 
 ![Screenshot](images/screenshot_300.jpg)
 
-The three sliders allow you to set:
+The three sliders, from left to right, allow you to set:
 
-* the color saturation (white rectangles remain white as of assignment constraint),
-* the black stroke width 
-* the "granularity" of the artwork (technically, the  maximum depth of the tree representing the
-artwork).
+* the color saturation (white rectangles remain white as of assignment constraint);
+* the "granularity" of the artwork; technically, it's the maximum depth of the tree representing the artwork;
+* the black stroke width.
 
-You can also randomly recolor the artwork globally or shift the hue of an individual rectangle
-(except white rectangles) clicking on it.
-
-## Video
-Here's a video of me "manually testing" the app (the video is longer than it should be):
-https://www.youtube.com/watch?v=bqhVjzkbDKQ.
+You can also randomly recolor the entire artwork or shift the hue of an individual rectangle
+(except white rectangles) tapping on it.
