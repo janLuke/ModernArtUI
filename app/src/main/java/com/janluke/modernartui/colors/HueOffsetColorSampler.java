@@ -19,18 +19,33 @@ public class HueOffsetColorSampler extends ConstrainedColorSampler<HueOffsetColo
     static final float HUE_LIMIT = COMPONENT_LIMIT[H];
     static final float GOLDEN_RATIO_CONJUGATE = 0.618033988749895f;
 
+    protected float relativeOffset;
     protected float offset;
     protected Random random = new Random();
     private float[] color = {0f, 0f, 0f};
 
-    public HueOffsetColorSampler(float offset) {
-        assert 0 <= offset && offset <= 1;
-        this.offset = offset;
+    /**
+     * @param relativeOffset: A number between 0 and 1 (inclusive) that expresses the hue increment
+     *                      as a percentage of the hue range width: the absolute increment varies
+     *                      in function of the range you set using setHueRange(minHue, maxHue).
+     */
+    public HueOffsetColorSampler(float relativeOffset) {
+        assert 0 <= relativeOffset && relativeOffset <= 1;
+        this.relativeOffset = relativeOffset;
+        this.offset = relativeOffset * HUE_LIMIT;
         color[H] = random.nextFloat() * HUE_LIMIT;
     }
 
     public static HueOffsetColorSampler withGoldenRatioOffset() {
-        return new HueOffsetColorSampler(GOLDEN_RATIO_CONJUGATE * HUE_LIMIT);
+        return new HueOffsetColorSampler(GOLDEN_RATIO_CONJUGATE);
+    }
+
+    @Override
+    public HueOffsetColorSampler setHueRange(float min, float max) {
+        super.setHueRange(min, max);
+        offset = (max - min) * relativeOffset;
+        color[H] = Math.min(max, color[H]);
+        return this;
     }
 
     public HueOffsetColorSampler startFromHue(float initialHue) {
@@ -43,9 +58,16 @@ public class HueOffsetColorSampler extends ConstrainedColorSampler<HueOffsetColo
         return (hasFixed(c)) ? minValueOf[c] : Util.randFloat(random, minValueOf[c], maxValueOf[c]);
     }
 
+    protected float nextHue() {
+        float hue = color[H] + offset;
+        if (hue > maxValueOf[H])
+            return minValueOf[H] + hue - maxValueOf[H];
+        return hue;
+    }
+
     @Override
     public int nextColor() {
-        color[H] = (color[H] + offset) % HUE_LIMIT;
+        color[H] = nextHue();
         color[S] = sampleComponent(S);
         color[B] = sampleComponent(B);
         return Color.HSVToColor(color);
