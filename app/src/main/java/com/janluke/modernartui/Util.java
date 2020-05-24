@@ -17,4 +17,7 @@ public class Util {
         return min + random.nextFloat() * (max - min);
     }
 
+    public static void checkArg(boolean condition, String message) {
+        if (!condition) throw new IllegalArgumentException(message);
+    }
 }

@@ -30,7 +30,7 @@ public class HueOffsetColorSampler extends ConstrainedColorSampler<HueOffsetColo
      *                      in function of the range you set using setHueRange(minHue, maxHue).
      */
     public HueOffsetColorSampler(float relativeOffset) {
-        assert 0 <= relativeOffset && relativeOffset <= 1;
+        Util.checkArg(0 <= relativeOffset && relativeOffset <= 1, "illegal relativeOffset");
         this.relativeOffset = relativeOffset;
         this.offset = relativeOffset * HUE_LIMIT;
         color[H] = random.nextFloat() * HUE_LIMIT;
@@ -49,7 +49,7 @@ public class HueOffsetColorSampler extends ConstrainedColorSampler<HueOffsetColo
     }
 
     public HueOffsetColorSampler startFromHue(float initialHue) {
-        assert 0 <= initialHue && initialHue <= HUE_LIMIT;
+        Util.checkArg(0 <= initialHue && initialHue <= HUE_LIMIT, "illegal initialHue");
         color[H] = initialHue;
         return this;
     }
