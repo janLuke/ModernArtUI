@@ -26,8 +26,8 @@ import android.widget.SeekBar;
 import android.widget.Toast;
 
 import com.example.android.modernartui.R;
-import com.janluke.modernartui.colors.ColorSampler;
-import com.janluke.modernartui.colors.GoldenRatioColorSampler;
+import com.janluke.modernartui.colors.ConstrainedColorSampler;
+import com.janluke.modernartui.colors.HueOffsetColorSampler;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -40,20 +40,23 @@ public class ShowArtworkActivity extends AppCompatActivity {
     private final static int MATCH_PARENT = ViewGroup.LayoutParams.MATCH_PARENT;
 
     static final String TAG = ShowArtworkActivity.class.getSimpleName();
-    static final float DEFAULT_SATURATION = 0.5f;
-    static final float DEFAULT_BRIGHTNESS = 1f;
-    static final float HUE_OFFSET_ON_CLICK = .13f;
+
+    static final float INITIAL_SATURATION = 0.5f;
+    static final float MIN_BRIGHTNESS = 0.8f;
+    static final float MAX_BRIGHTNESS = 1f;
+    static final float HUE_OFFSET_ON_TAP = .13f;
 
     static final int DEFAULT_DEPTH_LIMIT = 2;
     static final int MIN_DEPTH_LIMIT = 2;
 
     static final int DEFAULT_GRID_SIZE_IN_DP = 30;
+
     private static final int PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE = 0;
     private static final Bitmap.CompressFormat IMAGE_FILE_FORMAT = Bitmap.CompressFormat.PNG;
 
     ArtworkGenerator artworkGenerator;
     Artwork artwork;
-    ColorSampler colorSampler;
+    ConstrainedColorSampler colorSampler;
 
     FrameLayout artworkFrame;
     SeekBar saturationBar;
@@ -64,10 +67,6 @@ public class ShowArtworkActivity extends AppCompatActivity {
     ImageView gridSizeImageView;
 
     float saturation;
-    int num_saturation_levels;
-    float min_saturation = 0.f;
-    float max_saturation = 1.f;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,62 +75,51 @@ public class ShowArtworkActivity extends AppCompatActivity {
 
         // Find ID of relevant views
         artworkFrame = findViewById(R.id.artwork_frame);
-
         saturationBar = findViewById(R.id.saturation_seek_bar);
         depthLimitBar = findViewById(R.id.max_depth_seek_bar);
         gridSizeBar = findViewById(R.id.grid_size_seek_bar);
-
         newArtworkButton = findViewById(R.id.new_artwork_button);
         recolorButton = findViewById(R.id.recolor_button);
         gridSizeImageView = findViewById(R.id.grid_icon);
 
-        initSaturationComponents();
-        initDepthLimitChange();
-        initGridSizeComponents();
-
-        // OnClickListeners
-        recolorButton.setOnClickListener( view -> recolorArtwork() );
-        newArtworkButton.setOnClickListener( view -> createNewArtwork() );
-
-        // Color sampler
-        colorSampler = new GoldenRatioColorSampler.Builder()
-                            .withFixedSaturation(DEFAULT_SATURATION)
-                            .withFixedBrightness(DEFAULT_BRIGHTNESS)
-                            .build();
+        // Initialize seekbars and mount event handlers
+        initSaturationSeekBar();
+        initDepthLimitSeekBar();
+        initGridSizeSeekBar();
+        recolorButton.setOnClickListener(view -> recolorArtwork());
+        newArtworkButton.setOnClickListener(view -> generateAndShowNewArtwork());
 
         // Generate the artwork
+        colorSampler = HueOffsetColorSampler.withGoldenRatioOffset()
+            .setSaturation(INITIAL_SATURATION)
+            .setBrightnessRange(MIN_BRIGHTNESS, MAX_BRIGHTNESS);
         artworkGenerator = new ArtworkGenerator();
         artworkGenerator.setColorSampler(colorSampler);
         artworkGenerator.setStrokeWidthInDp(DEFAULT_GRID_SIZE_IN_DP);
-        createNewArtwork();
+        generateAndShowNewArtwork();
     }
 
-    void createNewArtwork() {
+    void generateAndShowNewArtwork() {
         Log.i(TAG, "Create new");
         artworkFrame.removeAllViews();
         artwork = artworkGenerator.generateArtwork(artworkFrame.getContext());
         artworkFrame.addView(artwork.getView(), MATCH_PARENT, MATCH_PARENT);
         onDepthLimitChange(depthLimitBar.getProgress());
         artwork.setOnNodesClickListener(node -> {
-            float newHue = node.getHue() / 360f + HUE_OFFSET_ON_CLICK;
+            float newHue = node.getHue() / 360f + HUE_OFFSET_ON_TAP;
             newHue = 360f * (newHue - (int) newHue);
             node.setHue(newHue);
         });
     }
 
-    float scale(float x, float min, float max, float destMin, float destMax) {
-        return (x - min) / (max - min) *  (destMax - destMin) + destMin;
-    }
+    void initSaturationSeekBar() {
+        saturation = INITIAL_SATURATION;
 
-    void initSaturationComponents() {
-        saturation = DEFAULT_SATURATION;
-        // Set the progress
-        Resources res = getResources();
-        num_saturation_levels = res.getInteger(R.integer.saturation_seekbar_max);
-        int saturation_level = (int) scale(DEFAULT_SATURATION,
-                                             min_saturation, max_saturation,
-                                            0.f, num_saturation_levels);
-        saturationBar.setProgress(saturation_level);
+        // The minimum saturation level is set to 1 because, for saturation 0, the color sampler
+        // would make all tiles white; when changing saturation,
+        saturationBar.setMin(1);
+        saturationBar.setMax(255);
+        saturationBar.setProgress((int) (INITIAL_SATURATION * saturationBar.getMax()));
 
         // Saturation bar listener
         saturationBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -139,21 +127,24 @@ public class ShowArtworkActivity extends AppCompatActivity {
              public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                  onSaturationChange(i);
              }
-             @Override public void onStartTrackingTouch(SeekBar seekBar) {}
-             @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+
+             @Override
+             public void onStartTrackingTouch(SeekBar seekBar) {}
+
+             @Override
+             public void onStopTrackingTouch(SeekBar seekBar) {}
          }
         );
     }
 
-    void onSaturationChange(int level) {
-        saturation = scale(level, 0.f, num_saturation_levels, min_saturation, max_saturation);
+    void onSaturationChange(int saturationLevel) {
+        saturation = (float) saturationLevel / saturationBar.getMax();
         artwork.setSaturation(saturation);
-        colorSampler.keepSaturationFixedTo(saturation);
-        Log.i(TAG, "Setting saturation to " + saturation + " (level " + level + ")");
+        colorSampler.setSaturation(saturation);
+        Log.i(TAG, "Setting saturation to " + saturation + " (level " + saturationLevel + ")");
     }
 
-
-    void initDepthLimitChange() {
+    void initDepthLimitSeekBar() {
         depthLimitBar.setMax(ArtworkGenerator.DEFAULT_MAX_DEPTH - MIN_DEPTH_LIMIT);
         depthLimitBar.setProgress(DEFAULT_DEPTH_LIMIT - MIN_DEPTH_LIMIT);
 
@@ -163,8 +154,14 @@ public class ShowArtworkActivity extends AppCompatActivity {
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 onDepthLimitChange(i);
             }
-            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
-            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
         });
     }
 
@@ -173,7 +170,7 @@ public class ShowArtworkActivity extends AppCompatActivity {
         Log.i(TAG, "Setting max depth to " + depth);
     }
 
-    void initGridSizeComponents() {
+    void initGridSizeSeekBar() {
         // Saturation bar listener
         gridSizeBar.setProgress(DEFAULT_GRID_SIZE_IN_DP);
         gridSizeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -181,22 +178,23 @@ public class ShowArtworkActivity extends AppCompatActivity {
             public void onProgressChanged(SeekBar seekBar, int size, boolean b) {
                 onGridSizeChange(size);
             }
-            @Override public void onStartTrackingTouch(SeekBar seekBar) {}
-            @Override public void onStopTrackingTouch(SeekBar seekBar) {}
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
         });
 
     }
 
-    void updateGridSizeImageView(int size) {
-        if (size == 0)
-            gridSizeImageView.setImageResource(R.drawable.ic_grid_off_black_36dp);
-        else
-            gridSizeImageView.setImageResource(R.drawable.ic_grid_on_black_36dp);
-    }
-
     void onGridSizeChange(int marginInDp) {
         Log.i(TAG, "Setting grid size to " + marginInDp + " dp");
-        updateGridSizeImageView(marginInDp);
+        gridSizeImageView.setImageResource((marginInDp == 0)
+            ? R.drawable.ic_grid_off_black_36dp
+            : R.drawable.ic_grid_on_black_36dp);
         artworkGenerator.setStrokeWidthInDp(marginInDp);
         artwork.setStrokeWidth(marginInDp);
     }
@@ -216,7 +214,7 @@ public class ShowArtworkActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Log.i(TAG, "Selected menu item: " + item.toString());
-        switch(item.getItemId()){
+        switch (item.getItemId()) {
             case R.id.more_info_menu_item:
                 InfoDialogFragment infoDialogFragment = InfoDialogFragment.newInstance();
                 infoDialogFragment.show(getFragmentManager(), "More info");
@@ -236,8 +234,7 @@ public class ShowArtworkActivity extends AppCompatActivity {
             // Permission is missing and must be requested.
             requestWriteExternalStoragePermission();
             return;
-        }
-        else {
+        } else {
             // Permission granted
             Bitmap image = captureView(R.id.artwork_frame);
             String imagePath = saveImageToGallery(image, generateFileName());
@@ -264,7 +261,8 @@ public class ShowArtworkActivity extends AppCompatActivity {
                 } else {
                     showToast(R.string.no_app_for_opening_image, Toast.LENGTH_LONG);
                 }
-            });
+            }
+        );
     }
 
     private void requestWriteExternalStoragePermission() {
@@ -294,8 +292,8 @@ public class ShowArtworkActivity extends AppCompatActivity {
     public String saveImageToGallery(Bitmap image, String filename) {
         final String APP_NAME = getString(R.string.app_name);
         String appImagesFolderPath =
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
-                    + File.separator + APP_NAME + File.separator;
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+                        + File.separator + APP_NAME + File.separator;
 
         // Create the folder if it doesn't exist
         File appImageFolder = new File(appImagesFolderPath);
@@ -304,11 +302,9 @@ public class ShowArtworkActivity extends AppCompatActivity {
             boolean created = false;
             try {
                 created = appImageFolder.mkdirs();
-            }
-            catch(SecurityException e) {
+            } catch (SecurityException e) {
                 created = false;
-            }
-            finally {
+            } finally {
                 if (!created) {
                     showErrorDialog(R.string.unable_to_create_gallery_folder_error);
                     return null;
@@ -321,11 +317,9 @@ public class ShowArtworkActivity extends AppCompatActivity {
         boolean success = false;
         try (FileOutputStream out = new FileOutputStream(imageFile)) {
             success = image.compress(IMAGE_FILE_FORMAT, 100, out);
-        }
-        catch (FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             e.printStackTrace();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
@@ -354,7 +348,6 @@ public class ShowArtworkActivity extends AppCompatActivity {
         return String.format("artwork_%d.%s", timeMillis, fileFormat);
     }
 
-
     public void showErrorDialog(@StringRes int messageId) {
         String title = getString(R.string.error_dialog_title);
         showDialog(title, getString(messageId));
@@ -377,7 +370,7 @@ public class ShowArtworkActivity extends AppCompatActivity {
 
     public void showToast(@StringRes int textId, int duration) {
         Toast.makeText(this, getString(textId), duration)
-             .show();
+                .show();
     }
 
 }

@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Saturation -->
-    <integer name="saturation_seekbar_max">100</integer>
-
     <!-- Grid size in dp -->
     <integer name="max_grid_size_in_dp">70</integer>
 </resources>

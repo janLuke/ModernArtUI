@@ -97,13 +97,13 @@
                 android:background="@drawable/ic_saturation_black_100"
                 android:layout_gravity="center|end"
                 android:tooltipText="@string/saturation"/>
+
             <SeekBar
                 android:id="@+id/saturation_seek_bar"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="3"
                 android:layout_gravity="center"
-                android:max="@integer/saturation_seekbar_max" />
+                android:layout_weight="3" />
 
             <ImageView
                 android:layout_width="24dp"

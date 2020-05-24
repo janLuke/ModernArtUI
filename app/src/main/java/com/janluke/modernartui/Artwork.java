@@ -12,13 +12,17 @@ import java.util.Random;
 import java.util.Set;
 
 
+/**
+ * An artwork composed by colored tiles.
+ * Assignment constraint: at least one of the tiles must be white and its color can't be changed.
+ */
 public class Artwork {
     private ArtworkNode root;
     private boolean forceWhiteNodes;
     private Set<ArtworkNode> lockedWhiteNodes = new HashSet<>();
 
     /**
-     * @param root The root ArtworkNode
+     * @param root            The root ArtworkNode
      * @param forceWhiteNodes Require at least a node (a tile) to be white and unmodifiable
      */
     public Artwork(ArtworkNode root, boolean forceWhiteNodes) {
@@ -55,8 +59,7 @@ public class Artwork {
                 whiteNode.setColor(Color.WHITE);
                 lockedWhiteNodes.add(whiteNode);
             }
-        }
-        else {
+        } else {
             root.traverseBreadthFirst(node ->
                     node.setColor(sampler.nextColor()));
         }
@@ -87,7 +90,7 @@ public class Artwork {
         root.traverseBreadthFirst(node -> {
             if (!node.isLeaf())
                 node.showChildren(node.leafView.getWidth() >= sizeInPx
-                                    && node.leafView.getHeight() >= sizeInPx);
+                        && node.leafView.getHeight() >= sizeInPx);
         });
     }
 
@@ -109,6 +112,6 @@ public class Artwork {
 
     public void setOnNodesClickListener(ArtworkNode.OnClickListener listener) {
         root.traverseBreadthFirst(node ->
-            node.setOnClickListener(listener));
+                node.setOnClickListener(listener));
     }
 }

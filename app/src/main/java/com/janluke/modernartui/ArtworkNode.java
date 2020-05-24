@@ -15,8 +15,7 @@ import java.util.Queue;
 
 
 /**
- * A piece of an Artwork that can behave either as a single tile or a column/row of tiles.
- * Basically, it's a tree node with a double nature: at any moment it can behave
+ * A piece of Artwork. Basically, it's a tree node with a double nature: at any moment it can behave:
  * - as a leaf, i.e. hiding its children
  * - or as an internal node, i.e. showing its children.
  */
@@ -30,7 +29,7 @@ public class ArtworkNode {
     View leafView;              // this is shown when the node works in "leaf mode"
     LinearLayout childrenView;   // children view are ViewSwitchers associated with of children ArtworkNodes
 
-    private float[] viewColorHSV = new float[3];
+    private float[] viewColorHSB = new float[3];
     private int marginBetweenChildren;
 
     boolean isShowingChildren = true;
@@ -90,33 +89,33 @@ public class ArtworkNode {
     }
 
     public int getColor() {
-        return Color.HSVToColor(viewColorHSV);
+        return Color.HSVToColor(viewColorHSB);
     }
 
-    public void getColorHSV(float[] hsv) {
-        hsv[0] = this.viewColorHSV[0];
-        hsv[1] = this.viewColorHSV[1];
-        hsv[2] = this.viewColorHSV[2];
+    public void getColorHSB(float[] hsv) {
+        hsv[0] = this.viewColorHSB[0];
+        hsv[1] = this.viewColorHSB[1];
+        hsv[2] = this.viewColorHSB[2];
     }
 
     public float getHue() {
-        return viewColorHSV[0];
+        return viewColorHSB[0];
     }
 
     public void setColor(int color) {
-        Color.colorToHSV(color, viewColorHSV);
+        Color.colorToHSV(color, viewColorHSB);
         leafView.setBackgroundColor(color);
     }
 
-    public void setColorHSV(float[] hsv) {
-        setColorHSV(hsv[0], hsv[1], hsv[2]);
+    public void setColorHSB(float[] hsb) {
+        setColorHSB(hsb[0], hsb[1], hsb[2]);
     }
 
-    public void setColorHSV(float h, float s, float v) {
-        viewColorHSV[0] = h;
-        viewColorHSV[1] = s;
-        viewColorHSV[2] = v;
-        leafView.setBackgroundColor(Color.HSVToColor(viewColorHSV));
+    public void setColorHSB(float h, float s, float b) {
+        viewColorHSB[0] = h;
+        viewColorHSB[1] = s;
+        viewColorHSB[2] = b;
+        leafView.setBackgroundColor(Color.HSVToColor(viewColorHSB));
     }
 
     public View getView() {
@@ -128,18 +127,18 @@ public class ArtworkNode {
     }
 
     public void setHue(float hue) {
-        viewColorHSV[0] = hue;
-        leafView.setBackgroundColor(Color.HSVToColor(viewColorHSV));
+        viewColorHSB[0] = hue;
+        leafView.setBackgroundColor(Color.HSVToColor(viewColorHSB));
     }
 
     public void setSaturation(float saturation) {
-        viewColorHSV[1] = saturation;
-        leafView.setBackgroundColor(Color.HSVToColor(viewColorHSV));
+        viewColorHSB[1] = saturation;
+        leafView.setBackgroundColor(Color.HSVToColor(viewColorHSB));
     }
 
     public void setBrightness(float brightness) {
-        viewColorHSV[2] = brightness;
-        leafView.setBackgroundColor(Color.HSVToColor(viewColorHSV));
+        viewColorHSB[2] = brightness;
+        leafView.setBackgroundColor(Color.HSVToColor(viewColorHSB));
     }
 
     public void setMargins(int left, int top, int right, int bottom) {
