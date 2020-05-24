@@ -96,13 +96,15 @@ public class ShowArtworkActivity extends AppCompatActivity {
         artworkGenerator = new ArtworkGenerator();
         artworkGenerator.setColorSampler(colorSampler);
         artworkGenerator.setStrokeWidthInDp(DEFAULT_GRID_SIZE_IN_DP);
-        generateAndShowNewArtwork();
+
+        artworkFrame.post(this::generateAndShowNewArtwork);
     }
 
     void generateAndShowNewArtwork() {
         Log.i(TAG, "Create new");
         artworkFrame.removeAllViews();
-        artwork = artworkGenerator.generateArtwork(artworkFrame.getContext());
+        artwork = artworkGenerator.generateArtwork(
+                artworkFrame.getContext(), artworkFrame.getWidth(), artworkFrame.getHeight());
         artworkFrame.addView(artwork.getView(), MATCH_PARENT, MATCH_PARENT);
         onDepthLimitChange(depthLimitBar.getProgress());
         artwork.setOnNodesClickListener(node -> {
@@ -117,7 +119,6 @@ public class ShowArtworkActivity extends AppCompatActivity {
 
         // The minimum saturation level is set to 1 because, for saturation 0, the color sampler
         // would make all tiles white; when changing saturation,
-        saturationBar.setMin(1);
         saturationBar.setMax(255);
         saturationBar.setProgress((int) (INITIAL_SATURATION * saturationBar.getMax()));
 
@@ -233,7 +234,6 @@ public class ShowArtworkActivity extends AppCompatActivity {
                 != PackageManager.PERMISSION_GRANTED) {
             // Permission is missing and must be requested.
             requestWriteExternalStoragePermission();
-            return;
         } else {
             // Permission granted
             Bitmap image = captureView(R.id.artwork_frame);
@@ -303,13 +303,11 @@ public class ShowArtworkActivity extends AppCompatActivity {
             try {
                 created = appImageFolder.mkdirs();
             } catch (SecurityException e) {
-                created = false;
             } finally {
-                if (!created) {
+                if (!created)
                     showErrorDialog(R.string.unable_to_create_gallery_folder_error);
-                    return null;
-                }
             }
+            return null;
         }
 
         // Store the image into the folder
@@ -317,8 +315,6 @@ public class ShowArtworkActivity extends AppCompatActivity {
         boolean success = false;
         try (FileOutputStream out = new FileOutputStream(imageFile)) {
             success = image.compress(IMAGE_FILE_FORMAT, 100, out);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }

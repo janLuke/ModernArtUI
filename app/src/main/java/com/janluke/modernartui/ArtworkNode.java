@@ -50,6 +50,10 @@ public class ArtworkNode {
         this.marginBetweenChildren = marginBetweenChildren;
     }
 
+    public ArtworkNode(Context context, int marginBetweenChildren) {
+        this(context, Color.WHITE, marginBetweenChildren);
+    }
+
     public void addChild(ArtworkNode child, int weight) {
         children.add(child);
         View childView = child.getView();
@@ -120,6 +124,14 @@ public class ArtworkNode {
 
     public View getView() {
         return viewSwitcher;
+    }
+
+    public int getHeight() {
+        return viewSwitcher.getHeight();
+    }
+
+    public int getWidth() {
+        return viewSwitcher.getWidth();
     }
 
     public Iterator<ArtworkNode> childrenIterator() {
