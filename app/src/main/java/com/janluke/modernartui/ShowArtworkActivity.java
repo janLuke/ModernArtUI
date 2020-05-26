@@ -3,17 +3,16 @@ package com.janluke.modernartui;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.media.MediaScannerConnection;
+import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -30,7 +29,6 @@ import com.janluke.modernartui.colors.ConstrainedColorSampler;
 import com.janluke.modernartui.colors.HueOffsetColorSampler;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
@@ -49,7 +47,7 @@ public class ShowArtworkActivity extends AppCompatActivity {
     static final int DEFAULT_DEPTH_LIMIT = 2;
     static final int MIN_DEPTH_LIMIT = 2;
 
-    static final int DEFAULT_GRID_SIZE_IN_DP = 30;
+    static final int DEFAULT_GRID_SIZE_IN_DP = 10;
 
     private static final int PERMISSION_REQUEST_WRITE_EXTERNAL_STORAGE = 0;
     private static final Bitmap.CompressFormat IMAGE_FILE_FORMAT = Bitmap.CompressFormat.PNG;
@@ -91,8 +89,8 @@ public class ShowArtworkActivity extends AppCompatActivity {
 
         // Generate the artwork
         colorSampler = HueOffsetColorSampler.withGoldenRatioOffset()
-            .setSaturation(INITIAL_SATURATION)
-            .setBrightnessRange(MIN_BRIGHTNESS, MAX_BRIGHTNESS);
+                .setSaturation(INITIAL_SATURATION)
+                .setBrightnessRange(MIN_BRIGHTNESS, MAX_BRIGHTNESS);
         artworkGenerator = new ArtworkGenerator();
         artworkGenerator.setColorSampler(colorSampler);
         artworkGenerator.setStrokeWidthInDp(DEFAULT_GRID_SIZE_IN_DP);
@@ -124,18 +122,19 @@ public class ShowArtworkActivity extends AppCompatActivity {
 
         // Saturation bar listener
         saturationBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-             @Override
-             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                 onSaturationChange(i);
-             }
+                 @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                onSaturationChange(i);
+            }
 
-             @Override
-             public void onStartTrackingTouch(SeekBar seekBar) {}
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
 
-             @Override
-             public void onStopTrackingTouch(SeekBar seekBar) {}
-         }
-        );
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
     }
 
     void onSaturationChange(int saturationLevel) {
@@ -173,6 +172,7 @@ public class ShowArtworkActivity extends AppCompatActivity {
 
     void initGridSizeSeekBar() {
         // Saturation bar listener
+        gridSizeBar.setMax(30);
         gridSizeBar.setProgress(DEFAULT_GRID_SIZE_IN_DP);
         gridSizeBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -194,8 +194,8 @@ public class ShowArtworkActivity extends AppCompatActivity {
     void onGridSizeChange(int marginInDp) {
         Log.i(TAG, "Setting grid size to " + marginInDp + " dp");
         gridSizeImageView.setImageResource((marginInDp == 0)
-            ? R.drawable.ic_grid_off_black_36dp
-            : R.drawable.ic_grid_on_black_36dp);
+                ? R.drawable.ic_grid_off_black_36dp
+                : R.drawable.ic_grid_on_black_36dp);
         artworkGenerator.setStrokeWidthInDp(marginInDp);
         artwork.setStrokeWidth(marginInDp);
     }
@@ -251,17 +251,17 @@ public class ShowArtworkActivity extends AppCompatActivity {
         String[] pathsToScan = new String[]{imagePath};
         String[] mimeTypes = new String[]{"image/png"};
         MediaScannerConnection.scanFile(this, pathsToScan, mimeTypes,
-            (path, uri) -> {
-                Log.i("ExternalStorage", "Scanned " + path + ":");
-                Log.i("ExternalStorage", "-> uri = " + uri);
-                Intent showImageIntent = new Intent(Intent.ACTION_VIEW);
-                showImageIntent.setDataAndType(uri, "image/png");
-                if (showImageIntent.resolveActivity(getPackageManager()) != null) {
-                    startActivity(showImageIntent);
-                } else {
-                    showToast(R.string.no_app_for_opening_image, Toast.LENGTH_LONG);
+                (path, uri) -> {
+                    Log.i("ExternalStorage", "Scanned " + path + ":");
+                    Log.i("ExternalStorage", "-> uri = " + uri);
+                    Intent showImageIntent = new Intent(Intent.ACTION_VIEW);
+                    showImageIntent.setDataAndType(uri, "image/png");
+                    if (showImageIntent.resolveActivity(getPackageManager()) != null) {
+                        startActivity(showImageIntent);
+                    } else {
+                        showToast(R.string.no_app_for_opening_image, Toast.LENGTH_LONG);
+                    }
                 }
-            }
         );
     }
 

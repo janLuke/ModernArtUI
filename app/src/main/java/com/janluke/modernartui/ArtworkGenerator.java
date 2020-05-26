@@ -2,7 +2,6 @@ package com.janluke.modernartui;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.util.Log;
 import android.widget.LinearLayout;
 
 import com.janluke.modernartui.colors.ColorSampler;
@@ -20,8 +19,9 @@ public class ArtworkGenerator {
     private int maxNumChildren = 5;
     private int minLayoutWeight = 10;
     private int maxLayoutWeight = 20;
+    private float leafThresholdInDp = 60f;
 
-    private float strokeWidthInDp = 5;
+    private float strokeWidthInDp = 2;
 
     private boolean forceWhiteNodes = true;
 
@@ -29,8 +29,9 @@ public class ArtworkGenerator {
 
 
     public Artwork generateArtwork(Context context, int width, int height) {
-
-        ArtworkNode root = generateArtworkTree(context, 0, width, height);
+        float widthInDp = Util.pxToDp(context, width);
+        float heightInDp = Util.pxToDp(context, height);
+        ArtworkNode root = generateArtworkTree(context, 0, widthInDp, heightInDp);
         Artwork artwork = new Artwork(root, forceWhiteNodes);
         artwork.setStrokeWidth(strokeWidthInDp);
         if (colorSampler != null)
@@ -39,22 +40,23 @@ public class ArtworkGenerator {
         return artwork;
     }
 
-    private ArtworkNode generateArtworkTree(Context context, int depthLevel, int width, int height) {
+    private ArtworkNode generateArtworkTree(Context context, int depthLevel, float width, float height) {
         ArtworkNode node = new ArtworkNode(context, Color.WHITE);
 
-        if (depthLevel == maxDepth)  {
+        // If we reached the last depth level or if the tile is too small, make this node a leaf
+        float longestSide = Math.max(width, height);
+        if (depthLevel == maxDepth || longestSide < leafThresholdInDp) {
             node.showChildren(false);
             return node;
         }
 
         int orientation = (depthLevel == 0)
-            ? randOrientation()
-            : (width >= height)
+                ? randOrientation()
+                : (width >= height)
                 ? LinearLayout.HORIZONTAL
                 : LinearLayout.VERTICAL;
         node.childrenView.setOrientation(orientation);
 
-        // The maximum number of children decreases with depth
         float depthProgress = depthLevel / (float) maxDepth;
         int maxExtraChildren = Math.round((1F - depthProgress) * (maxNumChildren - minNumChildren));
         int numChildren = minNumChildren + rand.nextInt(maxExtraChildren + 1);
@@ -69,8 +71,8 @@ public class ArtworkGenerator {
         }
 
         // Generate children subtrees
-        int childWidth = width;
-        int childHeight = height;
+        float childWidth = width;
+        float childHeight = height;
         for (int i = 0; i < numChildren; i++) {
 
             if (orientation == LinearLayout.HORIZONTAL)
