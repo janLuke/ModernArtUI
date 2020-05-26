@@ -39,28 +39,23 @@ public class ArtworkGenerator {
         return artwork;
     }
 
-    private boolean trueWithProbability(float probability) {
-        return rand.nextFloat() < probability;
-    }
-
     private ArtworkNode generateArtworkTree(Context context, int depthLevel, int width, int height) {
         ArtworkNode node = new ArtworkNode(context, Color.WHITE);
 
-        float depthProgress = depthLevel / (float) maxDepth;
-
-        // The probability of a node to be a leaf increases with depthLevel
-        Log.i("Generator", String.format("DepthLevel: %d | Probability to be leaf: %f", depthLevel, Math.sqrt(depthProgress)));
-        if (depthLevel == maxDepth || trueWithProbability((float) Math.pow(depthProgress, 2))) {
+        if (depthLevel == maxDepth)  {
             node.showChildren(false);
             return node;
         }
 
-        int orientation = (width >= height)
+        int orientation = (depthLevel == 0)
+            ? randOrientation()
+            : (width >= height)
                 ? LinearLayout.HORIZONTAL
                 : LinearLayout.VERTICAL;
         node.childrenView.setOrientation(orientation);
 
         // The maximum number of children decreases with depth
+        float depthProgress = depthLevel / (float) maxDepth;
         int maxExtraChildren = Math.round((1F - depthProgress) * (maxNumChildren - minNumChildren));
         int numChildren = minNumChildren + rand.nextInt(maxExtraChildren + 1);
 
@@ -88,12 +83,6 @@ public class ArtworkGenerator {
         }
 
         return node;
-    }
-
-    private static int perpendicularTo(int orientation) {
-        return (orientation == LinearLayout.HORIZONTAL)
-                ? LinearLayout.VERTICAL
-                : LinearLayout.HORIZONTAL;
     }
 
     private int randOrientation() {
