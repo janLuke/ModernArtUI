@@ -25,4 +25,8 @@ public class Util {
     public static void checkArg(boolean condition, String message) {
         if (!condition) throw new IllegalArgumentException(message);
     }
+
+    public static void checkArg(boolean condition) {
+        if (!condition) throw new IllegalArgumentException();
+    }
 }

@@ -1,6 +1,8 @@
 package com.janluke.modernartui.colors;
 
 
+import com.janluke.modernartui.Util;
+
 /**
  * Color sampler that allows to specify constraints on the HSB (aka HSV) components of the generated
  * colors. Each component can be set to a fixed value or constrained to be in a specified interval.
@@ -18,7 +20,7 @@ public abstract class ConstrainedColorSampler<T extends ConstrainedColorSampler>
     protected float[] maxValueOf = COMPONENT_LIMIT.clone();
 
     public T setComponentRange(int comp, float min, float max) {
-        assert 0f <= min && min <= max && max <= COMPONENT_LIMIT[comp];
+        Util.checkArg(0f <= min && min <= max && max <= COMPONENT_LIMIT[comp]);
         minValueOf[comp] = min;
         maxValueOf[comp] = max;
         return (T) this;
