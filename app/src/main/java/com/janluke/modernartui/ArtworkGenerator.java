@@ -51,8 +51,8 @@ public class ArtworkGenerator {
         }
 
         int orientation = (depthLevel == 0)
-                ? randOrientation()
-                : (width >= height)
+            ? randOrientation()
+            : (width >= height)
                 ? LinearLayout.HORIZONTAL
                 : LinearLayout.VERTICAL;
         node.childrenView.setOrientation(orientation);
