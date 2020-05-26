@@ -1,9 +1,9 @@
 # What is it?
 
-[Watch the video](https://www.youtube.com/watch?v=bqhVjzkbDKQ)
-Note: the video shows a previous version of the app, the one that was peer-reviewed by other 
-Coursera students. I made some changes to the generation algorithm since then but the app looks
-pretty much the same.
+[Watch the video](https://www.youtube.com/watch?v=bqhVjzkbDKQ) (Note: the video shows me manually testing
+a previous version of the app; I made some changes to the generation algorithm since then but the app looks 
+pretty much the same. Furthermore, in the video I manually test the app, so sorry if the video
+feels longer than necessary.)
 
 This is the first Android app I made from scratch. I wrote it for the final assignment of the
 Coursera's course "Programming Mobile Application for Android Handheld Systems: Part 1", but it's a
